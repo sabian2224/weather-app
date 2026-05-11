@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="A clean, modern weather app." />
+    <title>Weather</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+    <main class="app">
+        <header class="hero">
+            <h1>Weather</h1>
+            <p class="subtitle">Live conditions and a 5-day outlook for any city.</p>
+        </header>
+
+        <form id="search-form" class="search" autocomplete="off" novalidate>
+            <input
+                id="city-input"
+                type="text"
+                name="city"
+                placeholder="Search a city, e.g. Tokyo"
+                aria-label="City name"
+                maxlength="80"
+                required
+            />
+            <div class="units-toggle" role="group" aria-label="Temperature units">
+                <button type="button" data-units="imperial" class="active">°F</button>
+                <button type="button" data-units="metric">°C</button>
+            </div>
+            <button type="submit" class="search-btn">Search</button>
+        </form>
+
+        <p id="validation" class="validation" role="alert" hidden></p>
+
+        <section id="results" class="results" aria-live="polite">
+            <div id="empty" class="state empty">
+                <span class="state-icon">☁️</span>
+                <p>Search for a city to see the forecast.</p>
+            </div>
+
+            <div id="loading" class="state loading" hidden>
+                <div class="spinner" aria-hidden="true"></div>
+                <p>Fetching weather…</p>
+            </div>
+
+            <div id="error" class="state error" hidden>
+                <span class="state-icon">⚠️</span>
+                <p id="error-text">Something went wrong.</p>
+            </div>
+
+            <article id="weather-card" class="weather-card" hidden>
+                <div class="current">
+                    <div class="current-main">
+                        <h2 id="location"></h2>
+                        <p id="description" class="description"></p>
+                        <div class="temp-row">
+                            <img id="icon" alt="" />
+                            <span id="temp" class="temp"></span>
+                        </div>
+                        <p class="feels-like">Feels like <span id="feels-like"></span></p>
+                    </div>
+                    <ul class="metrics">
+                        <li>
+                            <span class="metric-label">Humidity</span>
+                            <span id="humidity" class="metric-value"></span>
+                        </li>
+                        <li>
+                            <span class="metric-label">Wind</span>
+                            <span id="wind" class="metric-value"></span>
+                        </li>
+                        <li>
+                            <span class="metric-label">Condition</span>
+                            <span id="condition" class="metric-value"></span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="forecast">
+                    <h3>Next days</h3>
+                    <ul id="forecast-list" class="forecast-list"></ul>
+                </div>
+            </article>
+        </section>
+
+        <footer class="footer">
+            <span>Data by OpenWeather</span>
+        </footer>
+    </main>
+
+    <script src="/static/script.js" defer></script>
+</body>
+</html>
