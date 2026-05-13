@@ -28,15 +28,15 @@
     unitButtons.forEach((btn) => {
         btn.addEventListener("click", () => {
             if (btn.classList.contains("active")) return;
-            unitButtons.forEach((b) => b.classList.remove("active"));
+            unitButtons.forEach((button) => button.classList.remove("active"));
             btn.classList.add("active");
             units = btn.dataset.units;
             if (lastCity) fetchWeather(lastCity);
         });
     });
 
-    form.addEventListener("submit", (e) => {
-        e.preventDefault();
+    form.addEventListener("submit", (event) => {
+        event.preventDefault();
         const city = input.value.trim();
         if (!city) {
             showValidation("Please enter a city name.");
@@ -89,7 +89,7 @@
     }
 
     function render({ current, forecast }) {
-        const tempUnit = current.units === "metric" ? "°C" : "°F";
+        const tempUnit = current.units === "metric" ? "\u00b0C" : "\u00b0F";
         const speedUnit = current.units === "metric" ? "m/s" : "mph";
 
         els.location.textContent = current.country
@@ -100,7 +100,7 @@
         els.feelsLike.textContent = `${current.feels_like}${tempUnit}`;
         els.humidity.textContent = `${current.humidity}%`;
         els.wind.textContent = `${current.wind_speed} ${speedUnit}`;
-        els.condition.textContent = current.condition || "—";
+        els.condition.textContent = current.condition || "-";
 
         if (current.icon) {
             els.icon.src = `https://openweathermap.org/img/wn/${current.icon}@2x.png`;

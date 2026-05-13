@@ -28,8 +28,8 @@
                 required
             />
             <div class="units-toggle" role="group" aria-label="Temperature units">
-                <button type="button" data-units="imperial" class="active">°F</button>
-                <button type="button" data-units="metric">°C</button>
+                <button type="button" data-units="imperial" class="active">&deg;F</button>
+                <button type="button" data-units="metric">&deg;C</button>
             </div>
             <button type="submit" class="search-btn">Search</button>
         </form>
@@ -38,17 +38,17 @@
 
         <section id="results" class="results" aria-live="polite">
             <div id="empty" class="state empty">
-                <span class="state-icon">☁️</span>
+                <span class="state-icon" aria-hidden="true">&#9729;</span>
                 <p>Search for a city to see the forecast.</p>
             </div>
 
             <div id="loading" class="state loading" hidden>
                 <div class="spinner" aria-hidden="true"></div>
-                <p>Fetching weather…</p>
+                <p>Fetching weather...</p>
             </div>
 
             <div id="error" class="state error" hidden>
-                <span class="state-icon">⚠️</span>
+                <span class="state-icon" aria-hidden="true">&#9888;</span>
                 <p id="error-text">Something went wrong.</p>
             </div>
 

@@ -4,6 +4,7 @@ from datetime import datetime
 from pathlib import Path
 
 import httpx
+from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -14,9 +15,9 @@ ROOT = Path(__file__).resolve().parent.parent
 TEMPLATES_DIR = ROOT / "templates"
 STATIC_DIR = ROOT / "static"
 
-# Fall back to the previously hard-coded key so the app still runs if the env
-# var isn't set, but production deploys should always supply WEATHER_API_KEY.
-WEATHER_API_KEY = os.environ.get("WEATHER_API_KEY", "c258869a6fb2cca384d344ecad1c44ca")
+load_dotenv(ROOT / ".env")
+
+WEATHER_API_KEY = os.environ.get("WEATHER_API_KEY")
 
 OWM_BASE = "https://api.openweathermap.org/data/2.5"
 
@@ -50,6 +51,9 @@ async def get_weather(
 
 
 async def _fetch(client: httpx.AsyncClient, path: str, params: dict):
+    if not WEATHER_API_KEY:
+        raise HTTPException(status_code=500, detail="Missing WEATHER_API_KEY configuration.")
+
     params = {**params, "appid": WEATHER_API_KEY}
     try:
         resp = await client.get(f"{OWM_BASE}{path}", params=params)
