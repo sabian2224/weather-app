@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="A clean, modern weather app." />
-    <title>Weather</title>
+    <meta name="description" content="A polished weather dashboard with live conditions, hourly outlooks, and saved cities." />
+    <title>Weather Desk</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -13,33 +13,55 @@
 <body>
     <main class="app">
         <header class="hero">
-            <h1>Weather</h1>
-            <p class="subtitle">Live conditions and a 5-day outlook for any city.</p>
+            <div>
+                <p class="eyebrow">Weather Desk</p>
+                <h1>Plan the day around the sky.</h1>
+                <p class="subtitle">Live conditions, a 5-day outlook, hourly rain chances, and quick access to the cities you check most.</p>
+            </div>
+            <button id="theme-toggle" class="icon-btn" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">
+                <span aria-hidden="true">&#9680;</span>
+            </button>
         </header>
 
         <form id="search-form" class="search" autocomplete="off" novalidate>
-            <input
-                id="city-input"
-                type="text"
-                name="city"
-                placeholder="Search a city, e.g. Tokyo"
-                aria-label="City name"
-                maxlength="80"
-                required
-            />
+            <div class="search-field">
+                <span aria-hidden="true">&#8981;</span>
+                <input
+                    id="city-input"
+                    type="text"
+                    name="city"
+                    placeholder="Search a city, e.g. Tokyo"
+                    aria-label="City name"
+                    maxlength="80"
+                    required
+                />
+            </div>
             <div class="units-toggle" role="group" aria-label="Temperature units">
                 <button type="button" data-units="imperial" class="active">&deg;F</button>
                 <button type="button" data-units="metric">&deg;C</button>
             </div>
+            <button type="button" id="location-btn" class="ghost-btn">Locate</button>
             <button type="submit" class="search-btn">Search</button>
         </form>
 
         <p id="validation" class="validation" role="alert" hidden></p>
 
+        <section class="quick-panel" aria-label="Saved and recent cities">
+            <div>
+                <span class="panel-label">Saved city</span>
+                <button id="saved-city" class="chip empty-chip" type="button">None yet</button>
+            </div>
+            <div>
+                <span class="panel-label">Recent searches</span>
+                <div id="recent-list" class="chip-row"></div>
+            </div>
+        </section>
+
         <section id="results" class="results" aria-live="polite">
             <div id="empty" class="state empty">
                 <span class="state-icon" aria-hidden="true">&#9729;</span>
-                <p>Search for a city to see the forecast.</p>
+                <h2>Ready when you are</h2>
+                <p>Search a city or use your current location to build your weather board.</p>
             </div>
 
             <div id="loading" class="state loading" hidden>
@@ -53,15 +75,24 @@
             </div>
 
             <article id="weather-card" class="weather-card" hidden>
-                <div class="current">
+                <div class="current" id="current-panel">
                     <div class="current-main">
-                        <h2 id="location"></h2>
-                        <p id="description" class="description"></p>
+                        <div class="location-row">
+                            <div>
+                                <h2 id="location"></h2>
+                                <p id="description" class="description"></p>
+                            </div>
+                            <button id="save-city" class="save-btn" type="button">Save</button>
+                        </div>
                         <div class="temp-row">
                             <img id="icon" alt="" />
-                            <span id="temp" class="temp"></span>
+                            <div>
+                                <span id="temp" class="temp"></span>
+                                <p id="range" class="range-line"></p>
+                            </div>
                         </div>
                         <p class="feels-like">Feels like <span id="feels-like"></span></p>
+                        <p id="local-time" class="local-time"></p>
                     </div>
                     <ul class="metrics">
                         <li>
@@ -73,14 +104,48 @@
                             <span id="wind" class="metric-value"></span>
                         </li>
                         <li>
-                            <span class="metric-label">Condition</span>
-                            <span id="condition" class="metric-value"></span>
+                            <span class="metric-label">Pressure</span>
+                            <span id="pressure" class="metric-value"></span>
+                        </li>
+                        <li>
+                            <span class="metric-label">Visibility</span>
+                            <span id="visibility" class="metric-value"></span>
                         </li>
                     </ul>
                 </div>
 
+                <div class="insights" aria-label="Weather highlights">
+                    <section>
+                        <span class="insight-label">Sunrise</span>
+                        <strong id="sunrise"></strong>
+                    </section>
+                    <section>
+                        <span class="insight-label">Sunset</span>
+                        <strong id="sunset"></strong>
+                    </section>
+                    <section>
+                        <span class="insight-label">Cloud cover</span>
+                        <strong id="clouds"></strong>
+                    </section>
+                    <section>
+                        <span class="insight-label">Today's tip</span>
+                        <strong id="tip"></strong>
+                    </section>
+                </div>
+
+                <div class="hourly">
+                    <div class="section-head">
+                        <h3>Next 24 hours</h3>
+                        <span>3-hour intervals</span>
+                    </div>
+                    <ul id="hourly-list" class="hourly-list"></ul>
+                </div>
+
                 <div class="forecast">
-                    <h3>Next days</h3>
+                    <div class="section-head">
+                        <h3>5-day outlook</h3>
+                        <span>Daily highs and lows</span>
+                    </div>
                     <ul id="forecast-list" class="forecast-list"></ul>
                 </div>
             </article>

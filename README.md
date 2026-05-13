@@ -1,6 +1,14 @@
-# Weather App
+# Weather Desk
 
 A FastAPI weather app ready for Vercel deployment.
+
+## Features
+
+- Search weather by city or use browser geolocation.
+- Switch between Fahrenheit and Celsius.
+- View current conditions, local update time, sunrise, sunset, pressure, visibility, cloud cover, and a practical daily tip.
+- Browse the next 24 hours in 3-hour forecast cards plus a 5-day outlook.
+- Save a favorite city, revisit recent searches, and toggle dark mode. These preferences are stored in the browser.
 
 ## Local Development
 

@@ -33,21 +33,34 @@ async def home(request: Request):
 
 @app.get("/api/weather")
 async def get_weather(
-    city: str = Query(..., min_length=1, max_length=80),
+    city: str | None = Query(None, min_length=1, max_length=80),
+    lat: float | None = Query(None, ge=-90, le=90),
+    lon: float | None = Query(None, ge=-180, le=180),
     units: str = Query("imperial", pattern="^(imperial|metric)$"),
 ):
-    city = city.strip()
-    if not city:
-        raise HTTPException(status_code=400, detail="City name is required.")
+    location_params = _location_params(city, lat, lon)
 
     async with httpx.AsyncClient(timeout=10.0) as client:
-        current = await _fetch(client, "/weather", {"q": city, "units": units})
-        forecast = await _fetch(client, "/forecast", {"q": city, "units": units})
+        current = await _fetch(client, "/weather", {**location_params, "units": units})
+        forecast = await _fetch(client, "/forecast", {**location_params, "units": units})
 
     return JSONResponse({
         "current": _shape_current(current, units),
         "forecast": _shape_forecast(forecast),
+        "hourly": _shape_hourly(forecast),
     })
+
+
+def _location_params(city: str | None, lat: float | None, lon: float | None) -> dict:
+    if lat is not None or lon is not None:
+        if lat is None or lon is None:
+            raise HTTPException(status_code=400, detail="Latitude and longitude are both required.")
+        return {"lat": lat, "lon": lon}
+
+    city = (city or "").strip()
+    if not city:
+        raise HTTPException(status_code=400, detail="City name is required.")
+    return {"q": city}
 
 
 async def _fetch(client: httpx.AsyncClient, path: str, params: dict):
@@ -74,16 +87,30 @@ def _shape_current(data: dict, units: str) -> dict:
     main = data.get("main", {})
     wind = data.get("wind", {})
     sys = data.get("sys", {})
+    clouds = data.get("clouds", {})
+    visibility = data.get("visibility")
+    timezone_offset = data.get("timezone", 0)
     return {
         "city": data.get("name"),
         "country": sys.get("country"),
+        "coordinates": data.get("coord", {}),
         "condition": weather.get("main"),
         "description": weather.get("description", "").title(),
         "icon": weather.get("icon"),
         "temp": round(main.get("temp", 0)),
         "feels_like": round(main.get("feels_like", 0)),
+        "temp_min": round(main.get("temp_min", 0)),
+        "temp_max": round(main.get("temp_max", 0)),
         "humidity": main.get("humidity"),
+        "pressure": main.get("pressure"),
+        "visibility": round(visibility / 1000, 1) if visibility is not None else None,
         "wind_speed": round(wind.get("speed", 0), 1),
+        "wind_deg": wind.get("deg"),
+        "clouds": clouds.get("all"),
+        "sunrise": _format_time(sys.get("sunrise"), timezone_offset),
+        "sunset": _format_time(sys.get("sunset"), timezone_offset),
+        "local_time": _format_time(data.get("dt"), timezone_offset),
+        "is_day": _is_day(data.get("dt"), sys.get("sunrise"), sys.get("sunset")),
         "units": units,
     }
 
@@ -118,3 +145,30 @@ def _shape_forecast(data: dict) -> list:
         if len(days) == 5:
             break
     return days
+
+
+def _shape_hourly(data: dict) -> list:
+    hours = []
+    for item in data.get("list", [])[:8]:
+        weather = (item.get("weather") or [{}])[0]
+        hour = datetime.strptime(item["dt_txt"], "%Y-%m-%d %H:%M:%S")
+        hours.append({
+            "time": hour.strftime("%-I %p") if os.name != "nt" else hour.strftime("%#I %p"),
+            "icon": weather.get("icon"),
+            "condition": weather.get("main"),
+            "temp": round(item.get("main", {}).get("temp", 0)),
+            "pop": round(item.get("pop", 0) * 100),
+        })
+    return hours
+
+
+def _format_time(timestamp: int | None, timezone_offset: int) -> str | None:
+    if timestamp is None:
+        return None
+    return datetime.utcfromtimestamp(timestamp + timezone_offset).strftime("%I:%M %p").lstrip("0")
+
+
+def _is_day(current: int | None, sunrise: int | None, sunset: int | None) -> bool:
+    if current is None or sunrise is None or sunset is None:
+        return True
+    return sunrise <= current < sunset
