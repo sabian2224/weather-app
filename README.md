@@ -38,4 +38,4 @@ Before deploying, add this environment variable in Vercel:
 WEATHER_API_KEY=your_openweather_api_key_here
 ```
 
-The production entry point is `api/index.py`, and `vercel.json` rewrites app routes to that FastAPI function.
+The production entry point is `index.py`, which imports the FastAPI app from `api/index.py`.
